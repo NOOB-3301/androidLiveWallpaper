@@ -30,6 +30,7 @@ object OpenRouter {
         val body = JSONObject()
             .put("model", Config.model())
             .put("max_tokens", maxTokens)
+            .put("reasoning", JSONObject().put("enabled", false)) // OpenRouter unified param; ignored by non-reasoning models, stops thinking models burning the budget
             .put("messages", messages(system, turns, imageDataUrl))
         if (json) body.put("response_format", JSONObject().put("type", "json_object"))
         val payload = body.toString()

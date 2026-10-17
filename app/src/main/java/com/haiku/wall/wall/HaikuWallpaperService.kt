@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.PowerManager
+import android.os.SystemClock
 import android.service.wallpaper.WallpaperService
 import android.util.Log
 import android.view.Choreographer
@@ -37,12 +38,14 @@ class HaikuWallpaperService : WallpaperService() {
         private var elapsedNs = 0L     // playback clock, paused while hidden
         private var lastFrameNs = 0L   // 0 = clock paused
         private var lastDrawNs = 0L
+        private var hiddenAt = 0L      // elapsedRealtime of the last hide; 0 = never hidden, counts as away
+        private val state = getSharedPreferences("wall_state", MODE_PRIVATE) // only this process touches it
 
         override fun onCreate(surfaceHolder: SurfaceHolder) {
             super.onCreate(surfaceHolder)
             HandFont.init(applicationContext)
             setOffsetNotificationsEnabled(false)
-            loadIfChanged()
+            finished = !loadIfChanged() // an already played plan starts as the finished picture
         }
 
         override fun onDestroy() {
@@ -81,18 +84,22 @@ class HaikuWallpaperService : WallpaperService() {
 
         override fun onVisibilityChanged(v: Boolean) {
             visible = v
-            if (!v) { stop(); return }
-            // shortcut: "replay on unlock" replays on every show (also when returning home), use ACTION_USER_PRESENT if too often
-            if (loadIfChanged() || PlanStore.replayOnUnlock(this@HaikuWallpaperService)) restart()
+            if (!v) { stop(); hiddenAt = SystemClock.elapsedRealtime(); return }
+            val unplayed = loadIfChanged()
+            // Replay only a finished drawing after real time away, so a quick hide/show flap can never restart it.
+            val away = SystemClock.elapsedRealtime() - hiddenAt >= REPLAY_AWAY_MS
+            val replay = finished && away && PlanStore.replayOnUnlock(this@HaikuWallpaperService)
+            Log.i(TAG, "visible: unplayed=$unplayed finished=$finished away=$away replay=$replay")
+            if (unplayed || replay) restart()
             if (!finished && getSystemService(PowerManager::class.java)?.isPowerSaveMode == true) {
-                finished = true // battery saver: skip the animation, show the finished picture
+                markPlayed() // battery saver: skip the animation, show the finished picture
                 releasePlayer()
                 needFull = true
             }
             kick()
         }
 
-        /** Reloads the plan when current.json changed (or on first use). True if a new plan was loaded. */
+        /** Reloads the plan when current.json changed (or on first use). True if the loaded plan was never played to the end. */
         private fun loadIfChanged(): Boolean {
             val ctx = this@HaikuWallpaperService
             val m = PlanStore.currentMtime(ctx)
@@ -103,7 +110,13 @@ class HaikuWallpaperService : WallpaperService() {
                 .onFailure { Log.w(TAG, "bad plan, using the minimal one", it) }
                 .getOrElse { Plan.parse(PlanStore.MINIMAL_PLAN) }
             if (old != null) notifyColorsChanged()
-            return true
+            return state.getLong(PLAYED, -1L) != m
+        }
+
+        /** Remembered across engine and process restarts, so a new engine does not replay a plan that already played. */
+        private fun markPlayed() {
+            finished = true
+            state.edit().putLong(PLAYED, planMtime).apply()
         }
 
         private fun restart() {
@@ -152,7 +165,7 @@ class HaikuWallpaperService : WallpaperService() {
             val r = if (needFull) Rect(0, 0, w, h) else dirty
             if (r != null) needFull = !post(p.bitmap(), r)
             if (p.finished) {
-                finished = true
+                markPlayed()
                 releasePlayer()
             }
         }
@@ -194,5 +207,7 @@ class HaikuWallpaperService : WallpaperService() {
 
     private companion object {
         const val TAG = "HaikuWall"
+        const val PLAYED = "playedMtime"
+        const val REPLAY_AWAY_MS = 3_000L
     }
 }

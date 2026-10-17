@@ -16,7 +16,7 @@ class Prefs(ctx: Context) {
         get() = sp.getString("customTheme", null).orEmpty()
         set(v) = sp.edit { putString("customTheme", v) }
     var intervalHours: Int
-        get() = sp.getInt("intervalHours", 1)
+        get() = sp.getInt("intervalHours", 0)
         set(v) = sp.edit { putInt("intervalHours", v) }
     var seconds: Int
         get() = sp.getInt("seconds", 12)

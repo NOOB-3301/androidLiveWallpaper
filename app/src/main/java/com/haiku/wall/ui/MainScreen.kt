@@ -180,7 +180,7 @@ fun MainScreen() {
                 Modifier.fillMaxWidth().toggleable(replay, role = Role.Switch) { replay = it; prefs.replayOnUnlock = it },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Replay drawing on every unlock", Modifier.weight(1f))
+                Text("Replay drawing when I return to the home screen", Modifier.weight(1f))
                 Switch(replay, onCheckedChange = null)
             }
         }

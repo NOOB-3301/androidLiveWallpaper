@@ -53,14 +53,15 @@ object PlanStore {
         File(dir(ctx), "history").listFiles { f -> f.name.endsWith(".json") }.orEmpty()
             .sortedByDescending { it.name.removeSuffix(".json").toLongOrNull() ?: 0L }
 
-    private fun replayFlag(ctx: Context) = File(ctx.filesDir, "replay_on_unlock")
+    // On by default: the marker file means "off", so a fresh install replays when you come back to the home screen.
+    private fun replayOffFlag(ctx: Context) = File(ctx.filesDir, "replay_off")
 
     fun setReplayOnUnlock(ctx: Context, on: Boolean) {
-        val f = replayFlag(ctx)
-        if (on) f.createNewFile() else f.delete()
+        val f = replayOffFlag(ctx)
+        if (on) f.delete() else f.createNewFile()
     }
 
-    fun replayOnUnlock(ctx: Context): Boolean = replayFlag(ctx).exists()
+    fun replayOnUnlock(ctx: Context): Boolean = !replayOffFlag(ctx).exists()
 
     /** First line of the haiku of the newest [n] history plans; reads only the "haiku" key. */
     fun recentHaiku(ctx: Context, n: Int): List<String> = history(ctx).take(n).mapNotNull { f ->

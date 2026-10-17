@@ -132,7 +132,7 @@ Use the card's numbers as a starting point, then nudge them by ±0.1 at most. Wi
 
 **line-field behind text**: 40 to 120 near-parallel lines (arcs, waves, strings, rain, ridges) cover the whole canvas and bleed off every edge, with spacing 18 to 40 and alpha 0.4 to 0.8. Break some into dashes. Change the angle, amplitude or spacing slowly across the sheet. Add one disturbance off-centre inside SAFE (a ring centre, a knot, a bend, a dropped stone at about (780, 0.27·H)). The poem at ty 0.45 to 0.55 with halo:true.
 
-**diagonal split**: a crease from about (-20, 0.68·H) to (1100, 0.36·H), slightly bowed and drawn as two close lines. One side is shaded with side or hatch along the crease angle: dense near the crease, thinning away from it like a vignette. The other side stays almost bare. The poem is centred at ty 0.5, straddling the crease, with halo:true.
+**diagonal split**: a crease from about (-20, 0.68·H) to (1100, 0.36·H), slightly bowed and drawn as two close lines. One side is shaded with side or hatch along the crease angle: dense near the crease, thinning away from it like a vignette. The other side stays airy but never empty: a faint wash, one hairline crack and small accents. The poem is centred at ty 0.5, straddling the crease, with halo:true.
 
 **ring burst**: concentric rings around a centre at (540, 0.3·H), or around one or two centres near opposite corners. Use 8 to 40 rings with radii from about 50 to 0.6·W. Each ring wobbles or zigzags (radius + amp·sin(k·a + phase) + noise), with inks alternating and alpha falling off outward. Fill the core densely (hatch or wash). Add a few beads, drops or knots on the rings as accents. The poem sits in clear ground at ty 0.66 to 0.7 (centred burst) or at 0.5 (corner bursts, halo:true).
 
@@ -148,14 +148,16 @@ Use the card's numbers as a starting point, then nudge them by ±0.1 at most. Wi
 ## Composition rules
 - One idea. The `image` from the concept is drawn literally and is recognisable at thumbnail size. Everything else is field or texture that supports it.
 - The poem is the visual centre of gravity. Nothing else matches its contrast. Keep a halo gap of at least 0.6·fs between the text and any object or dense area.
-- Fill the tall portrait. Fields reach every edge. Avoid a small drawing floating in empty space, and avoid the same density everywhere: dense at the edges and around the object, sparse near the poem.
+- Fill the tall portrait. Fields reach every edge. Bare paper covers at most about a quarter of the canvas: a subject smaller than a third of the canvas sitting in bare ground fails, and so does a whole region of nothing across the middle. Vary the density — dense at the edges and around the object, sparse near the poem — but never let an entire region go empty.
+- Commit to the paper: prefer a tinted or dark ground (cream, kraft, peach, slate, turquoise, navy) over plain white — bare white reads as washed out unless the piece is deliberately pale. Give the supporting field at least two layered techniques (a base rhythm plus sparse accents) with gradual inner changes in angle, spacing and breaks, so it reads as drawn, not stamped.
 - Draw like a hand. Perturb every coordinate with noise() or a rand() stream: radius jitter ±2 to 4%, angle jitter of a few degrees, alpha and width varying 15 to 30% between strokes. Let lines overshoot corners a little and double the important ones. Points 8 to 30 px apart along curves are enough, since the kit's pen smooths between them.
 - Stage the performance with phases: 'outline' for construction and contours, 'inner' for structure and branches, area fills, 'detail' for small accents, 'dark' for the last darkest touches. The text always comes last.
-- Budget: aim for 600 to 3500 marks and under 80 000 points. The kit throws above 6000 marks or 120 000 points. Marks add up fast. An area() in hatch or side mode makes about area ÷ (spacing × len) strokes, stipple makes about area ÷ spacing² × density dots, and a line() becomes one mark per ~400 px. For big shapes, raise spacing and len (hatch len 60 to 120; side spacing 14 to 24 with len 80 to 140) instead of shrinking the drawing. The program must finish in well under a second: no unbounded loops, no O(n²) over thousands of items.
+- Budget: aim for 1200 to 4000 marks and under 80 000 points. The kit throws above 6000 marks or 120 000 points. Marks add up fast. An area() in hatch or side mode makes about area ÷ (spacing × len) strokes, stipple makes about area ÷ spacing² × density dots, and a line() becomes one mark per ~400 px. For big shapes, raise spacing and len (hatch len 60 to 120; side spacing 14 to 24 with len 80 to 140) instead of shrinking the drawing. The program must finish in well under a second: no unbounded loops, no O(n²) over thousands of items.
 - Determinism: draw all randomness from `rand(seed)` streams and `noise()`. Never use Math.random or Date.
 
 ## Never
 - Never use flat gradients or smooth colour ramps. Tone comes only from hatching, stippling or side strokes; a soft vignette made of sparse marks is the only gradation.
+- Never draw furniture, tables, desks, shelves, rooms, floors, walls or perspective planes. Everything is flat projection: face-on, edge-on or top-down.
 - No clip-art icons (emoji-like hearts, five-point stars, suns with triangle rays, smiley faces, logos, arrows).
 - No ruler-perfect circles or lines: always perturb them.
 - No more than 4 inks. Usually 1 or 2.
@@ -166,7 +168,7 @@ Use the card's numbers as a starting point, then nudge them by ±0.1 at most. Wi
 - Nothing important in the top or bottom 12%.
 
 ## Example programs
-Each starts with a header comment naming its medium, layout and haiku. Study how they build images from simple repeated marks, then make your own; never reuse their subject.
+Each starts with a header comment naming its medium, layout and haiku. Study how they build images from simple repeated marks, then make your own. They teach technique and structure only: never reuse an example's subject, palette, mood or composition trick — invent yours for this poem.
 
 {{EXAMPLES}}
 

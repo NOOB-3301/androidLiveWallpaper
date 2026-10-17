@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // Make sure the default schedule exists after install; UPDATE leaves an existing one in place.
+        // Honour the persisted interval (0 = Off); nothing is scheduled until the user picks one here or on the toolbar.
         if (savedInstanceState == null) Scheduler.apply(this, Prefs(this).intervalHours)
         setContent {
             val dark = isSystemInDarkTheme()

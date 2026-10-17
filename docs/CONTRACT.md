@@ -41,7 +41,7 @@ Project-root `.env` has `OPENROUTER_API_URL=` (default `https://openrouter.ai/ap
 `BuildConfig.OPENROUTER_API_URL`, `BuildConfig.OPENROUTER_API_KEY`, `BuildConfig.OPENROUTER_MODEL`.
 Missing values must NOT fail the build.
 ```kotlin
-object Config { fun apiKey(): String; fun model(): String; fun judgeEnabled(): Boolean /* default true */ }
+object Config { fun apiUrl(): String; fun apiKey(): String; fun model(): String; fun judgeEnabled(): Boolean /* default true */ }
 ```
 
 ## Coordinates and screen
