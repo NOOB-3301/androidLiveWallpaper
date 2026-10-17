@@ -8,5 +8,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         HandFont.init(this)
+        Config.init(this)
     }
 }

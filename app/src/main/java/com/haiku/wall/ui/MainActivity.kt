@@ -12,6 +12,11 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.haiku.wall.Config
 import com.haiku.wall.Prefs
 import com.haiku.wall.work.Scheduler
 
@@ -29,7 +34,10 @@ class MainActivity : ComponentActivity() {
                 dark -> darkColorScheme()
                 else -> lightColorScheme()
             }
-            MaterialTheme(colorScheme = scheme) { MainScreen() }
+            MaterialTheme(colorScheme = scheme) {
+                var ready by remember { mutableStateOf(Config.configured()) }
+                if (ready) MainScreen() else AiGate { ready = true }
+            }
         }
     }
 }

@@ -183,6 +183,7 @@ fun MainScreen() {
                 Text("Replay drawing when I return to the home screen", Modifier.weight(1f))
                 Switch(replay, onCheckedChange = null)
             }
+            if (!Config.fromBuild) AiSettings(initiallyOpen = false)
         }
     }
 }
