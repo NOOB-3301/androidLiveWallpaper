@@ -9,3 +9,4 @@ node_modules/
 .kotlin/
 # reference screenshots, local only
 docs/ref/
+.DS_Store
