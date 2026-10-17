@@ -1,0 +1,8 @@
+.env
+local.properties
+.gradle/
+build/
+*.iml
+.idea/
+node_modules/
+.toolchain-ready

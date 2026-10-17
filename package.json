@@ -1,0 +1,11 @@
+{
+  "name": "haiku-wall-tools",
+  "private": true,
+  "description": "Node tools for the kit: run a program, preview a plan, tests (see tools/README.md)",
+  "scripts": {
+    "test": "node --test tools/*.test.mjs"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "1.0.9"
+  }
+}

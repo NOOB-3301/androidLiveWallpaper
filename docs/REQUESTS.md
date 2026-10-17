@@ -1,0 +1,3 @@
+D: app/build.gradle.kts testImplementation("junit:junit:4.13.2") — JVM unit tests in app/src/test/java/com/haiku/wall/gen/PipelineHelpersTest.kt
+C: res/mipmap-anydpi/ic_launcher.xml breaks :app build ("mipmap/ic_launcher not found") — <monochrome> (API 33) makes AAPT2 version it to -v33, nothing left for minSdk 28; drop <monochrome> or add a v26 copy without it (A)
+B: call `JsRunner.init(applicationContext)` once before `JsRunner.run` — in App.onCreate (A; init only stores the context, no JS, safe in :wallpaper) or at the top of Pipeline.generate(ctx, ...) (D). run() throws JsError("JsRunner.init(context) was not called") otherwise.
