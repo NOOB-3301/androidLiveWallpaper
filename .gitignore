@@ -6,3 +6,6 @@ build/
 .idea/
 node_modules/
 .toolchain-ready
+.kotlin/
+# reference screenshots, local only
+docs/ref/
