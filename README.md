@@ -4,10 +4,18 @@ AI-generated haiku poems drawn stroke by stroke on your Android home screen.
 
 Every day (or hour), Claude writes a fresh haiku about your chosen theme. The app renders it as hand-drawn artwork, playing the animation once. Beautiful, minimal, runs in the background.
 
+<p align="center">
+  <img src="docs/media/demo.gif" width="240" alt="Haiku being drawn on the home screen">
+  <img src="docs/media/home.jpeg" width="240" alt="App home with the current haiku">
+  <img src="docs/media/settings.jpeg" width="240" alt="Themes, interval and drawing length settings">
+</p>
+
+<p align="center"><a href="docs/media/demo.mp4">▶ Full-quality video</a></p>
+
 ## Features
 
 - **Fresh haiku daily** – themes: nature, seasons, love, solitude, and 12 more. Mix and match or set your own.
-- **Animated hand-drawn art** – strokes appear in real time, no generic AI slop.
+- **Animated hand-drawn art** – strokes appear in real time.
 - **Lightweight** – runs in a separate process, draws only what changed, stops when done.
 - **Configurable AI** – use Anthropic or any OpenAI-compatible endpoint.
 - **Replay on unlock** – see the animation again when you come back to your home screen.
@@ -43,9 +51,6 @@ Every day (or hour), Claude writes a fresh haiku about your chosen theme. The ap
 - **Wallpaper process**: animation playback, no network or JS.
 - **Kit**: hand-drawn stroke model with swell, taper, and wander. Can layer 6000+ marks without slowdown.
 
-## License
-
-Apache 2.0 (except Patrick Hand font: OFL).
 
 ## Attribution
 
