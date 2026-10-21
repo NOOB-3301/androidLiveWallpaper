@@ -37,6 +37,14 @@ object PlanStore {
         history(ctx).drop(KEEP).forEach { it.delete() }
     }
 
+    /** Make an existing page the current one without adding a duplicate history entry. */
+    fun restore(ctx: Context, planJson: String) {
+        val d = dir(ctx)
+        val tmp = File(d, "current.json.tmp")
+        FileOutputStream(tmp).use { it.write(planJson.toByteArray()); it.fd.sync() }
+        if (!tmp.renameTo(File(d, "current.json"))) throw IOException("rename to current.json failed")
+    }
+
     fun currentJson(ctx: Context): String {
         runCatching { current(ctx).takeIf { it.isFile }?.readText() }.getOrNull()?.let { return it }
         return runCatching {

@@ -6,8 +6,8 @@ Every day (or hour), Claude writes a fresh haiku about your chosen theme. The ap
 
 <p align="center">
   <img src="docs/media/demo.gif" width="240" alt="Haiku being drawn on the home screen">
-  <img src="docs/media/home.jpeg" width="240" alt="App home with the current haiku">
-  <img src="docs/media/settings.jpeg" width="240" alt="Themes, interval and drawing length settings">
+  <img src="docs/media/home-v2.jpeg" width="240" alt="App home with the current haiku">
+  <img src="docs/media/settings-v2.jpeg" width="240" alt="Topics, interval, drawing length and replay settings">
 </p>
 
 <p align="center"><a href="docs/media/demo.mp4">▶ Full-quality video</a></p>

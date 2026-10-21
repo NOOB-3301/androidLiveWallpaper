@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.HaikuWall" parent="android:Theme.Material.NoActionBar" />
+    <style name="Theme.HaikuWall" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/paper_night</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <style name="Theme.HaikuWall.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/paper_night</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimationDuration">260</item>
+        <item name="postSplashScreenTheme">@style/Theme.HaikuWall</item>
+    </style>
 </resources>

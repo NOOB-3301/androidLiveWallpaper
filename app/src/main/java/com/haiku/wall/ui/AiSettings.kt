@@ -1,28 +1,23 @@
 package com.haiku.wall.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,94 +25,152 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.haiku.wall.Config
+import com.haiku.wall.ui.components.HairlineField
+import com.haiku.wall.ui.components.HairlinePicker
+import com.haiku.wall.ui.components.InkButton
+import com.haiku.wall.ui.components.MonoLabel
+import com.haiku.wall.ui.components.PaperBackdrop
+import com.haiku.wall.ui.components.PaperPanel
+import com.haiku.wall.ui.components.SealMark
+import com.haiku.wall.ui.theme.LocalHaikuColors
 
 private val PROVIDERS = listOf(Config.ANTHROPIC to "Anthropic", Config.OPENAI to "OpenAI-compatible")
 
-/** Full-screen gate shown until the AI settings are filled in; nothing else in the app is reachable. */
+/** Full-screen onboarding shown until the AI endpoint is configured. */
 @Composable
 fun AiGate(onDone: () -> Unit) {
-    Surface(Modifier.fillMaxSize()) {
+    val colors = LocalHaikuColors.current
+    PaperBackdrop {
         Column(
-            Modifier.verticalScroll(rememberScrollState()).safeDrawingPadding().padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            Modifier
+                .fillMaxSize()
+                .safeDrawingPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 22.dp, vertical = 18.dp),
         ) {
-            Text("Haiku Wall", style = MaterialTheme.typography.displaySmall)
-            Text("Set up the AI that writes your haiku before you start.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            AiSettings(initiallyOpen = true, onSaved = onDone)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                SealMark(size = 30.dp, contentDescription = "Haiku Wall seal")
+                Spacer(Modifier.width(10.dp))
+                MonoLabel("Haiku Wall", color = colors.text)
+            }
+            Spacer(Modifier.height(42.dp))
+            MonoLabel("Setup", color = colors.accent)
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = "Set up your AI provider",
+                style = MaterialTheme.typography.displayLarge,
+                color = colors.text,
+            )
+            Spacer(Modifier.height(14.dp))
+            Text(
+                text = "Haiku Wall requests each haiku from an AI endpoint you provide. " +
+                    "The key stays on this phone and is sent only to the endpoint you choose.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = colors.muted,
+            )
+            Spacer(Modifier.height(26.dp))
+            PaperPanel(Modifier.fillMaxWidth()) {
+                Column(Modifier.fillMaxWidth().padding(20.dp)) {
+                    AiForm(onSaved = onDone)
+                }
+            }
+            Spacer(Modifier.height(22.dp))
+            MonoLabel("The key is stored only on this phone", color = colors.muted)
+            Spacer(Modifier.height(28.dp))
         }
     }
 }
 
-/** Collapsible "AI settings" section. Only shown when the key was not baked in at build time. */
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * The AI endpoint fields. Used in onboarding and in the settings sheet; the caller decides
+ * whether saving closes a gate or simply updates the current screen.
+ */
 @Composable
-fun AiSettings(initiallyOpen: Boolean, onSaved: () -> Unit = {}) {
-    val ctx = androidx.compose.ui.platform.LocalContext.current
-    var open by remember { mutableStateOf(initiallyOpen) }
-    var info by remember { mutableStateOf(false) }
+fun AiForm(onSaved: () -> Unit = {}) {
+    val ctx = LocalContext.current
+    val colors = LocalHaikuColors.current
     var menu by remember { mutableStateOf(false) }
     var provider by remember { mutableStateOf(Config.provider()) }
     var model by remember { mutableStateOf(Config.model()) }
     var key by remember { mutableStateOf(Config.apiKey()) }
-    var url by remember { mutableStateOf(Config.apiUrl().takeIf { provider == Config.OPENAI } ?: Config.DEFAULT_URL) }
+    var url by remember {
+        mutableStateOf(if (Config.provider() == Config.OPENAI) Config.apiUrl() else Config.DEFAULT_URL)
+    }
     var saved by remember { mutableStateOf(false) }
-    val valid = model.isNotBlank() && key.isNotBlank() && (provider == Config.ANTHROPIC || url.startsWith("http"))
+    val valid = model.isNotBlank() && key.isNotBlank() &&
+        (provider == Config.ANTHROPIC || url.trim().startsWith("http"))
 
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton({ open = !open }, Modifier.weight(1f)) {
-                Text(if (open) "AI settings  ▴" else "AI settings  ▾", Modifier.fillMaxWidth(), style = MaterialTheme.typography.titleSmall)
-            }
-            OutlinedButton({ info = true }, contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)) { Text("i") }
-        }
-        if (open) {
-            ExposedDropdownMenuBox(menu, { menu = it }) {
-                OutlinedTextField(
-                    PROVIDERS.first { it.first == provider }.second, {}, Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
-                    readOnly = true, label = { Text("Model provider") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(menu) },
-                )
-                ExposedDropdownMenu(menu, { menu = false }) {
-                    PROVIDERS.forEach { (id, label) ->
-                        DropdownMenuItem({ Text(label) }, { provider = id; menu = false; saved = false })
-                    }
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Box {
+            HairlinePicker(
+                label = "Provider",
+                value = PROVIDERS.first { it.first == provider }.second,
+                onClick = { menu = true },
+            )
+            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                PROVIDERS.forEach { (id, label) ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = colors.text,
+                            )
+                        },
+                        onClick = {
+                            provider = id
+                            if (id == Config.OPENAI) url = Config.DEFAULT_URL
+                            menu = false
+                            saved = false
+                        },
+                    )
                 }
             }
-            OutlinedTextField(model, { model = it; saved = false }, Modifier.fillMaxWidth(), singleLine = true, label = { Text("Model name") })
-            if (provider == Config.OPENAI) {
-                OutlinedTextField(
-                    url, { url = it; saved = false }, Modifier.fillMaxWidth(), singleLine = true, label = { Text("Endpoint URL") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                )
-            }
-            OutlinedTextField(
-                key, { key = it; saved = false }, Modifier.fillMaxWidth(), singleLine = true, label = { Text("API key") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            )
-            Button({
-                Config.init(ctx)
-                Config.save(provider, model, key, url)
-                saved = true
-                onSaved()
-            }, enabled = valid) { Text(if (saved) "Saved" else "Save") }
         }
-    }
-    if (info) AlertDialog(
-        onDismissRequest = { info = false },
-        confirmButton = { TextButton({ info = false }) { Text("Got it") } },
-        title = { Text("AI settings") },
-        text = {
-            Text(
-                "Model provider: Anthropic uses Claude directly. OpenAI-compatible works with OpenRouter, OpenAI, Ollama and similar.\n\n" +
-                    "Model name: the exact id, e.g. claude-haiku-5-5 (Anthropic) or anthropic/claude-haiku-5.5 (OpenRouter).\n\n" +
-                    "Endpoint URL: the chat-completions address of an OpenAI-compatible service.\n\n" +
-                    "API key: stored only on this phone and sent only to the endpoint above.",
+
+        HairlineField(
+            value = model,
+            onValueChange = { model = it; saved = false },
+            label = "Model name",
+            placeholder = "e.g. anthropic/claude-haiku-5.5",
+        )
+
+        if (provider == Config.OPENAI) {
+            HairlineField(
+                value = url,
+                onValueChange = { url = it; saved = false },
+                label = "Endpoint URL",
+                placeholder = Config.DEFAULT_URL,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
             )
-        },
-    )
+        }
+
+        HairlineField(
+            value = key,
+            onValueChange = { key = it; saved = false },
+            label = "API key",
+            placeholder = "sk-…",
+            isPassword = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            InkButton(
+                text = if (saved) "Saved" else "Save AI settings",
+                onClick = {
+                    Config.init(ctx)
+                    Config.save(provider, model, key, url)
+                    saved = true
+                    onSaved()
+                },
+                modifier = Modifier.weight(1f),
+                enabled = valid,
+            )
+        }
+        if (saved) MonoLabel("Saved on this phone", color = colors.pine)
+    }
 }

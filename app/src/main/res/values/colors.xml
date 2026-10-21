@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="paper">#F3F0E8</color>
-    <color name="ink">#2B3A8C</color>
-    <color name="seal">#C3272B</color>
+    <color name="paper">#EDEBE3</color>
+    <color name="ink">#16130F</color>
+    <color name="seal">#B4372A</color>
+    <color name="paper_night">#14120F</color>
 </resources>
