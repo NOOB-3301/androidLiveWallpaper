@@ -10,7 +10,3 @@ node_modules/
 # reference screenshots, local only
 docs/ref/
 .DS_Store
-
-# local tool config dumps (contain credentials)
-log.json
-log2.json
